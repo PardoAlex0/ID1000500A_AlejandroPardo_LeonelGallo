@@ -109,8 +109,4 @@ module ID1000500A_convolution
         .done_o (int_IPcore[0])
     );
 
-	 assign data_MemIn0[31:8]= {24{1'b0}};
-	 assign data_MemIn1[31:8]= {24{1'b0}};
-	 assign data_MemOut0[31:16]= {16{1'b0}};
-	 
 endmodule

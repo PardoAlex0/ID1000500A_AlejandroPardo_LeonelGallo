@@ -15,13 +15,13 @@
             {
                 "comment": "Memoria dataX",
                 "enom": "MdataX",
-                "size": "8",
+                "size": "32",
                 "val": "5'b00000"
             },
             {
                 "comment": "Memoria dataY",
                 "enom": "MdataY",
-                "size": "8",
+                "size": "32",
                 "val": "5'b00010"
             }
         ],
@@ -31,7 +31,7 @@
             {
                 "comment": "Memoria dataZ",
                 "enom": "MdataZ",
-                "size": "16",
+                "size": "64",
                 "val": "5'b00100"
             }
         ],
