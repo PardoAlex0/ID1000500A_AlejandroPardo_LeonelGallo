@@ -7,24 +7,26 @@ module convolutionTB();
             //----------------------------------------------------------
 localparam	CYCLE		    = 'd20, // Define the clock work cycle in ns (user)
             DATAWIDTH    = 'd32, // AIP BITWIDTH
-            MAX_SIZE_MEM = 'd8,  // MAX MEMORY SIZE AMONG ALL AIP MEMORIES (Defined by the user)
+            MAX_SIZE_MEM = 'd6,  // MAX MEMORY SIZE AMONG ALL AIP MEMORIES (Defined by the user)
             //------------------------------------------------------------
             //..................CONFIG VALUES.............................
             //------------------------------------------------------------           
             STATUS   = 5'd30,//Mandatory config
             IP_ID    = 5'd31,//Mandatory config
-            MDATAIN  = 5'd0, // Config values defined in the CSV file
-            ADATAIN 	= 5'd1,
-            MDATAOUT = 5'd2,
-            ADATAOUT	= 5'd3,
-            CDELAY   = 5'd4,
-            ADELAY	= 5'd5,
+            MdataX	 = 5'd0, // Config values defined in the CSV file
+            AdataX	 = 5'd1,
+			MdataY	 = 5'd2,
+			AdataY	 = 5'd3,
+            MdataZ	 = 5'd4,
+            AdataZ	 = 5'd5,
+            Csize    = 5'd6,
+            Asize    = 5'd7,
             //------------------------------------------------------------
             //..................PARAMETERS DEFINED BY THE USER............
             //------------------------------------------------------------
-            SIZE_MEM     = 'd8,  //Size of the memories of the IP dummy
-            ENA_DELAY    = 1'b0, //Enable delay
-            DELAY_MS     = 31'd20, //Delay in ms
+            SIZE_MEM     = 'd9,  //Size of the memories of the IP convolution
+			SIZEX		 = 'd5,
+			SIZEY		 = 'd5,
             INT_BIT_DONE = 'd0; //Bit corresponding to the Int Done flag.
             
 
@@ -103,22 +105,33 @@ task convolution_task;
         
 
         // RANDOM DATA GENERATION
-        for (i = 0; i < SIZE_MEM; i=i+1) begin //generating random data
-            dataSet[i] = $urandom%100;          
+        for (i = 0; i < SIZEX; i=i+1) begin //generating random data
+            dataSet0[i] = $urandom%5;          
         end     
         
         //****CONVERTION TO A SINGLE ARRAY
-        for (i = 0; i < (SIZE_MEM) ; i=i+1) begin 
-            dataSet_packed[DATAWIDTH*i+:DATAWIDTH] = dataSet[i]; 
-        end        
+        for (i = 0; i < (SIZEX) ; i=i+1) begin 
+            dataSet_packed0[DATAWIDTH*i+:DATAWIDTH] = dataSet0[i]; 
+        end
+
+        // RANDOM DATA GENERATION
+        for (i = 0; i < SIZEY; i=i+1) begin //generating random data
+            dataSet1[i] = $urandom%5;          
+        end     
         
-        writeMem(MDATAIN, dataSet_packed, SIZE_MEM,0);
+        //****CONVERTION TO A SINGLE ARRAY
+        for (i = 0; i < (SIZEY) ; i=i+1) begin 
+            dataSet_packed1[DATAWIDTH*i+:DATAWIDTH] = dataSet1[i]; 
+        end             
         
-        //DUMMY CONFIGURATION
-        tb_data[31:1] = DELAY_MS; 
-        tb_data[0]    = ENA_DELAY; 
+        writeMem(MdataX, dataSet_packed0, SIZEX,0);
+		writeMem(MdataY, dataSet_packed1, SIZEY,0);
         
-        writeConfReg(CDELAY,tb_data,1,0);
+        //CONVOLUTION CONFIGURATION
+        tb_data[4:0] = SIZEX; 
+        tb_data[9:5] = SIZEY; 
+        
+        writeConfReg(Csize,tb_data,1,0);
 
         // START PROCESS
         $display("%7T Sending start", $time);
@@ -156,16 +169,16 @@ task convolution_task;
 
 
         // READ MEM OUT
-        readMem(MDATAOUT, result_packed, SIZE_MEM, 0);
+        readMem(MdataZ, result_packed, SIZE_MEM, 0);
         //*****CONVERTION TO A 2D ARRAY
         for (i = 0; i < (SIZE_MEM) ; i=i+1) begin 
             result[i]= result_packed[DATAWIDTH*i+:DATAWIDTH]; 
         end
         
-        $display ("\t\tI \t\tO \t\tResult");
+        $display ("\t\tI \t\tI \t\tResult");
         for (i = 0; i < SIZE_MEM; i=i+1) begin
             //read_interface(MDATAOUT, tb_data);
-            $display ("Read data %2d \t%8h \t%8h \t%s", i, dataSet[i], result[i], (dataSet[i] === result[i] ? "OK": "ERROR"));
+            $display ("Read data %2d \t%8h \t%8h \t%8h", i, dataSet0[i], dataSet1[i], result[i]);
         end
         
         // DISABLE INTERRUPTIONS
