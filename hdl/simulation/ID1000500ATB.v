@@ -1,6 +1,6 @@
 `timescale 1ns/1ns
 
-module convolutionTB();
+module ID1000500ATB();
 
             //----------------------------------------------------------
             //.......MANDATORY TB PARAMETERS............................
@@ -24,9 +24,10 @@ localparam	CYCLE		    = 'd20, // Define the clock work cycle in ns (user)
             //------------------------------------------------------------
             //..................PARAMETERS DEFINED BY THE USER............
             //------------------------------------------------------------
-            SIZE_MEM     = 'd9,  //Size of the memories of the IP convolution
-			SIZEX		 = 5'd5,
-			SIZEY		 = 5'd4,
+            SIZE_MEMX    = 'd10,
+			SIZE_MEMY	 = 'd5,
+			SIZE_MEMZ	 = 'd15,	
+			SIZE_CONFIG	 = 10'hAA,
             INT_BIT_DONE = 'd0; //Bit corresponding to the Int Done flag.
             
 
@@ -80,14 +81,14 @@ task convolution_task;
    //Auxiliar variables
    reg [DATAWIDTH-1:0] tb_data;
 
-   reg [DATAWIDTH-1:0] dataSet0 [SIZE_MEM-1:0];
-   reg [(DATAWIDTH*SIZE_MEM)-1:0] dataSet_packed0;
+   reg [DATAWIDTH-1:0] dataSet0 [SIZE_MEMX-1:0];
+   reg [(DATAWIDTH*SIZE_MEMX)-1:0] dataSet_packed0;
    
-   reg [DATAWIDTH-1:0] dataSet1 [SIZE_MEM-1:0];
-   reg [(DATAWIDTH*SIZE_MEM)-1:0] dataSet_packed1;
+   reg [DATAWIDTH-1:0] dataSet1 [SIZE_MEMY-1:0];
+   reg [(DATAWIDTH*SIZE_MEMY)-1:0] dataSet_packed1;
 
-   reg [DATAWIDTH-1:0] result [SIZE_MEM-1:0];
-   reg [(DATAWIDTH*SIZE_MEM)-1:0] result_packed;
+   reg [DATAWIDTH-1:0] result [SIZE_MEMZ-1:0];
+   reg [(DATAWIDTH*SIZE_MEMZ)-1:0] result_packed;
    
    integer i;
    begin
@@ -104,32 +105,41 @@ task convolution_task;
         enableINT(INT_BIT_DONE);
         
 
-        // RANDOM DATA GENERATION
-        for (i = 0; i < SIZEX; i=i+1) begin //generating random data
-            dataSet0[i] = $urandom%5;          
-        end     
+        // DATA X GENERATION
+		dataSet0[0] = 8'h01;
+		dataSet0[1] = 8'h02;
+		dataSet0[2] = 8'h03;
+		dataSet0[3] = 8'h04;
+		dataSet0[4] = 8'h03;
+		dataSet0[5] = 8'h07;
+		dataSet0[6] = 8'h06;
+		dataSet0[7] = 8'h0A;
+		dataSet0[8] = 8'h05;
+		dataSet0[9] = 8'h08;
+		   
         
         //****CONVERTION TO A SINGLE ARRAY
-        for (i = 0; i < (SIZEX) ; i=i+1) begin 
+        for (i = 0; i < (SIZE_MEMX) ; i=i+1) begin 
             dataSet_packed0[DATAWIDTH*i+:DATAWIDTH] = dataSet0[i]; 
         end
 
-        // RANDOM DATA GENERATION
-        for (i = 0; i < SIZEY; i=i+1) begin //generating random data
-            dataSet1[i] = $urandom%5;          
-        end     
+		// DATA X GENERATION
+		dataSet1[0] = 8'h03;
+		dataSet1[1] = 8'h03;
+		dataSet1[2] = 8'h05;
+		dataSet1[3] = 8'h06;
+		dataSet1[4] = 8'h07;   
         
         //****CONVERTION TO A SINGLE ARRAY
-        for (i = 0; i < (SIZEY) ; i=i+1) begin 
+        for (i = 0; i < (SIZE_MEMY) ; i=i+1) begin 
             dataSet_packed1[DATAWIDTH*i+:DATAWIDTH] = dataSet1[i]; 
         end             
         
-        writeMem(MdataX, dataSet_packed0, SIZEX,0);
-		writeMem(MdataY, dataSet_packed1, SIZEY,0);
+        writeMem(MdataX, dataSet_packed0, SIZE_MEMX,0);
+		writeMem(MdataY, dataSet_packed1, SIZE_MEMY,0);
         
         //CONVOLUTION CONFIGURATION
-        tb_data[4:0] = SIZEX; 
-        tb_data[9:5] = SIZEY; 
+        tb_data[9:0] = SIZE_CONFIG;
         
         writeConfReg(Csize,tb_data,1,0);
 
@@ -169,14 +179,14 @@ task convolution_task;
 
 
         // READ MEM OUT
-        readMem(MdataZ, result_packed, SIZE_MEM, 0);
+        readMem(MdataZ, result_packed, SIZE_MEMZ, 0);
         //*****CONVERTION TO A 2D ARRAY
-        for (i = 0; i < (SIZE_MEM) ; i=i+1) begin 
+        for (i = 0; i < (SIZE_MEMZ) ; i=i+1) begin 
             result[i]= result_packed[DATAWIDTH*i+:DATAWIDTH]; 
         end
         
         $display ("\t\tI \t\tI \t\tResult");
-        for (i = 0; i < SIZE_MEM; i=i+1) begin
+        for (i = 0; i < SIZE_MEMZ; i=i+1) begin
             //read_interface(MDATAOUT, tb_data);
             $display ("Read data %2d \t%8h \t%8h \t%8h", i, dataSet0[i], dataSet1[i], result[i]);
         end
