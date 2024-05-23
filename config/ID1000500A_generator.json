@@ -6,20 +6,20 @@
     },
     "memories": {
         "cfgReg": {
-            "comment": "Tamaño de las memorias X, Y",
+            "comment": "size X y Y",
             "enom": "Csize",
             "size": "1",
             "val": "5'b00110"
         },
         "memIn": [
             {
-                "comment": "Memoria dataX",
+                "comment": "memoria X",
                 "enom": "MdataX",
                 "size": "32",
                 "val": "5'b00000"
             },
             {
-                "comment": "Memoria dataY",
+                "comment": "memoria Y",
                 "enom": "MdataY",
                 "size": "32",
                 "val": "5'b00010"
@@ -29,7 +29,7 @@
         },
         "memOut": [
             {
-                "comment": "Memoria dataZ",
+                "comment": "memoria Z",
                 "enom": "MdataZ",
                 "size": "64",
                 "val": "5'b00100"

@@ -1,12 +1,12 @@
 type,alphaID,numID,size,mode,description
 IPID,IP_CONVOLUTION,0x1000500A,,,IP Convolution core p1
-CFG,MdataX,0b00000,32,W,Memoria dataX
-CFG,MdataY,0b00010,32,W,Memoria dataY
-CFG,MdataZ,0b00100,64,R,Memoria dataZ
+CFG,MdataX,0b00000,32,W,memoria X
+CFG,MdataY,0b00010,32,W,memoria Y
+CFG,MdataZ,0b00100,64,R,memoria Z
 CFG,AdataX,0b00001,1,W,Set Write Address Pointer of MdataX
 CFG,AdataY,0b00011,1,W,Set Write Address Pointer of MdataY
 CFG,AdataZ,0b00101,1,W,Set Read Address Pointer of MdataZ
-CFG,Csize,0b00110,1,W,Tamaño de las memorias X, Y
+CFG,Csize,0b00110,1,W,size X y Y
 CFG,Asize,0b00111,1,W,Set Write Address of Csize
 CFG,STATUS,0b11110,1,B,IP status register
 CFG,IPID,0b11111,1,R,IP ID

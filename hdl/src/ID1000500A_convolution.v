@@ -70,7 +70,7 @@ module ID1000500A_convolution
         .rdDataMemIn_0 (data_MemIn0),
         .rdAddrMemIn_0 (rd_addr_MemIn0),
         
-        .rdDataMemIn_1 (data_MemIn01),
+        .rdDataMemIn_1 (data_MemIn1),
         .rdAddrMemIn_1 (rd_addr_MemIn1),
 
         .wrDataMemOut_0 (data_MemOut0),

@@ -25,8 +25,8 @@ localparam	CYCLE		    = 'd20, // Define the clock work cycle in ns (user)
             //..................PARAMETERS DEFINED BY THE USER............
             //------------------------------------------------------------
             SIZE_MEM     = 'd9,  //Size of the memories of the IP convolution
-			SIZEX		 = 'd5,
-			SIZEY		 = 'd5,
+			SIZEX		 = 5'd5,
+			SIZEY		 = 5'd4,
             INT_BIT_DONE = 'd0; //Bit corresponding to the Int Done flag.
             
 
