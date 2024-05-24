@@ -32,12 +32,12 @@ int main(){
     printf("Read STATUS: %08X\n\n", STATUS[0]);
 
 
-    uint32_t MemX[6] = {0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000003, 0x00000007};
+    uint32_t MemX[10] = {0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000003, 0x00000007, 0x00000006, 0x0000000A, 0x00000005, 0x00000008};
     uint32_t MemX_size = sizeof(MemX) / sizeof(uint32_t);
 
 
     printf("Write memory: MdataX\n");
-    aip->writeMem("MdataX", MemX, 6, 0);
+    aip->writeMem("MdataX", MemX, 10, 0);
     printf("MemX Data: [");
     for(int i=0; i<MemX_size; i++){
         printf("0x%08X", MemX[i]);
@@ -64,7 +64,7 @@ int main(){
     printf("]\n\n");
 
 
-    uint32_t Size[1] = {0x000000A6};
+    uint32_t Size[1] = {0x000000AA};
     uint32_t Size_size = sizeof(Size) / sizeof(uint32_t);
 
 
@@ -88,12 +88,12 @@ int main(){
     printf("Read STATUS: %08X\n\n", STATUS[0]);
 
 
-    uint32_t MemZ[10];
+    uint32_t MemZ[14];
     uint32_t MemZ_size = sizeof(MemZ) / sizeof(uint32_t);
 
 
     printf("Read memory: MdataZ\n");
-    aip->readMem("MdataZ", MemZ, 10, 0);
+    aip->readMem("MdataZ", MemZ, 14, 0);
     printf("MemZ Data: [");
     for(int i=0; i<MemZ_size; i++){
         printf("0x%08X", MemZ[i]);

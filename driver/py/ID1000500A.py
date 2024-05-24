@@ -21,10 +21,10 @@ try:
     STATUS = aip.getStatus()
     print(f'Read STATUS: {STATUS:08X}\n')
 
-    MemX = [0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000003, 0x00000007]
+    MemX = [0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000003, 0x00000007, 0x00000006, 0x0000000A, 0x00000005, 0x00000008]
 
     print('Write memory: MdataX')
-    aip.writeMem('MdataX', MemX, 6, 0)
+    aip.writeMem('MdataX', MemX, 10, 0)
     print(f'MemX Data: {[f"{x:08X}" for x in MemX]}\n')
 
     MemY = [0x00000003, 0x00000003, 0x00000005, 0x00000006, 0x00000007]
@@ -33,7 +33,7 @@ try:
     aip.writeMem('MdataY', MemY, 5, 0)
     print(f'MemY Data: {[f"{x:08X}" for x in MemY]}\n')
 
-    Size = [0x000000A6]
+    Size = [0x000000AA]
 
     print('Write configuration register: Csize')
     aip.writeConfReg('Csize', Size, 1, 0)
@@ -46,7 +46,7 @@ try:
     print(f'Read STATUS: {STATUS:08X}\n')
 
     print('Read memory: MdataZ')
-    MemZ = aip.readMem('MdataZ', 10, 0)
+    MemZ = aip.readMem('MdataZ', 14, 0)
     print(f'MemZ Data: {[f"{x:08X}" for x in MemZ]}\n')
 
     print('Clear INT: 0')
