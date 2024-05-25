@@ -155,7 +155,7 @@ if __name__=="__main__":
     port = 0
     
     try:
-        driver = convolution(conector, addr, port, csv_file)
+        driver = convolution(connector, addr, port, csv_file)
         logging.info("Test Convolution: Driver created")
     except:
         logging.error("Test Convolution: Driver not created")
