@@ -1,125 +1,155 @@
+#include "ID1000500A.h"
 #include "caip.h"
-
-#include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 
-#include <conio.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif // _WIN32
 
-int main(){
-    const char *connector = "/dev/ttyACM0";
-    uint8_t nic_addr = 1;
-    uint8_t port = 0;
-    const char *csv_file = "/home/a/Documents/HDL/ID1000500A_AlejandroPardo_LeonelGallo/config/ID1000500A_config.csv";
+//Defines
+#define INT_DONE    0
+#define ONE_FLIT    1
+#define ZERO_OFFSET 0
+#define STATUS_BITS 8
+#define INT_DONE_BIT    0x00000001
 
-    caip_t *aip = caip_init(connector, nic_addr, port, csv_file);
+/** Global variables declaration (private) */
+caip_t *id1000500A_aip;
+uint32_t id1000500A_id = 0;
+/*********************************************************************/
 
-    aip->reset();
+/** Private function declarations */
+static uint32_t id1000500A_getID(uint32_t* id);
+static uint32_t id1000500A_clearStatus(void);
+/*********************************************************************/
 
-    /*========================================*/
-    /* Code generated with IPAccelerator */
+/**Functions*/
 
-    uint32_t ID[1];
+/* Driver initialization*/
+int32_t id1000500A_init(const char *connector, uint8_t nic_addr, uint8_t port, const char *csv_file)
+{
+    id1000500A_aip = caip_init(connector, nic_addr, port, csv_file);
 
-
-    aip->getID(ID);
-    printf("Read ID: %08X\n\n", ID[0]);
-
-
-    uint32_t STATUS[1];
-
-
-    aip->getStatus(STATUS);
-    printf("Read STATUS: %08X\n\n", STATUS[0]);
-
-
-    uint32_t MemX[10] = {0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000003, 0x00000007, 0x00000006, 0x0000000A, 0x00000005, 0x00000008};
-    uint32_t MemX_size = sizeof(MemX) / sizeof(uint32_t);
-
-
-    printf("Write memory: MdataX\n");
-    aip->writeMem("MdataX", MemX, 10, 0);
-    printf("MemX Data: [");
-    for(int i=0; i<MemX_size; i++){
-        printf("0x%08X", MemX[i]);
-        if(i != MemX_size-1){
-            printf(", ");
-        }
+    if(id1000500A_aip == NULL){
+        printf("CAIP Object not created");
+        return -1;
     }
-    printf("]\n\n");
+    id1000500A_aip->reset();
 
+    id1000500A_getID(&id1000500A_id);
+    id1000500A_clearStatus();
 
-    uint32_t MemY[5] = {0x00000003, 0x00000003, 0x00000005, 0x00000006, 0x00000007};
-    uint32_t MemY_size = sizeof(MemY) / sizeof(uint32_t);
+    printf("\nIP Controller created with IP ID: %08X\n\n", id1000500A_id);
+    return 0;
+}
 
+/* Write data*/
+int32_t id1000500A_writeData(uint32_t *data, uint32_t data_size)
+{
+	id1000500A_aip->writeMem("MdataX", data, data_size, ZERO_OFFSET);
+    return 0;
+}
+/* Read data*/
+int32_t id1000500A_readData(uint32_t *data, uint32_t data_size)
+{
+    id1000500A_aip->readMem("MdataZ", data, data_size, ZERO_OFFSET);
+    return 0;
+}
 
-    printf("Write memory: MdataY\n");
-    aip->writeMem("MdataY", MemY, 5, 0);
-    printf("MemY Data: [");
-    for(int i=0; i<MemY_size; i++){
-        printf("0x%08X", MemY[i]);
-        if(i != MemY_size-1){
-            printf(", ");
-        }
+/* Start processing*/
+int32_t id1000500A_startIP(void)
+{
+    id1000500A_aip->start();
+    return 0;
+}
+
+/* Enable interruption notification "Done"*/
+int32_t id1000500A_enableINT(void)
+{
+    id1000500A_aip->enableINT(INT_DONE, NULL);
+    printf("\nINT Done enabled");
+    return 0;
+}
+
+/* Disable interruption notification "Done"*/
+int32_t id1000500A_disableINT(void)
+{
+    id1000500A_aip->disableINT(INT_DONE);
+    printf("\nINT Done disabled");
+    return 0;
+}
+
+/* Show status*/
+int32_t id1000500A_status(void)
+{
+    uint32_t status;
+    id1000500A_aip->getStatus(&status);
+    printf("\nStatus: %08X", status);
+    return 0;
+}
+
+/* Wait interruption*/
+int32_t id1000500A_waitINT(void)
+{
+    bool waiting = true;
+    uint32_t status;
+
+    while(waiting)
+    {
+        id1000500A_aip->getStatus(&status);
+
+        if((status & INT_DONE_BIT) > 0)
+            waiting = false;
+
+        #ifdef _WIN32
+        Sleep(500); // ms
+        #else
+        sleep(0.1); // segs
+        #endif
     }
-    printf("]\n\n");
 
-
-    uint32_t Size[1] = {0x000000AA};
-    uint32_t Size_size = sizeof(Size) / sizeof(uint32_t);
-
-
-    printf("Write configuration register: Csize\n");
-    aip->writeConfReg("Csize", Size, 1, 0);
-    printf("Size Data: [");
-    for(int i=0; i<Size_size; i++){
-        printf("0x%08X", Size[i]);
-        if(i != Size_size-1){
-            printf(", ");
-        }
-    }
-    printf("]\n\n");
-
-
-    printf("Start IP\n\n");
-    aip->start();
-
-
-    aip->getStatus(STATUS);
-    printf("Read STATUS: %08X\n\n", STATUS[0]);
-
-
-    uint32_t MemZ[14];
-    uint32_t MemZ_size = sizeof(MemZ) / sizeof(uint32_t);
-
-
-    printf("Read memory: MdataZ\n");
-    aip->readMem("MdataZ", MemZ, 14, 0);
-    printf("MemZ Data: [");
-    for(int i=0; i<MemZ_size; i++){
-        printf("0x%08X", MemZ[i]);
-        if(i != MemZ_size-1){
-            printf(", ");
-        }
-    }
-    printf("]\n\n");
-
-
-    printf("Clear INT: 0\n");
-    aip->clearINT(0);
-
-
-    aip->getStatus(STATUS);
-    printf("Read STATUS: %08X\n\n", STATUS[0]);
-
-
-
-    /*========================================*/
-
-    aip->finish();
-
-    printf("\n\nPress key to close ... ");
-    getch();
+    id1000500A_aip->clearINT(INT_DONE);
 
     return 0;
+}
 
+/* Finish*/
+int32_t id1000500A_finish(void)
+{
+    id1000500A_aip->finish();
+    return 0;
+}
+
+/* Convolution processing*/
+void conv(uint8_t *X, uint8_t sizeX, uint8_t *Y, uint8_t sizeY, uint16_t *result)
+{
+    uint8_t result_size = sizeX + sizeY - 1;
+    memset(result, 0, result_size * sizeof(uint16_t));
+
+    for (uint8_t i = 0; i < sizeX; i++) {
+        for (uint8_t j = 0; j < sizeY; j++) {
+            result[i + j] += X[i] * Y[j];
+        }
+    }
+}
+
+/** Private functions */
+
+/* Get ID */
+uint32_t id1000500A_getID(uint32_t* id)
+{
+    id1000500A_aip->getID(id);
+    return 0;
+}
+
+/* Clear status */
+uint32_t id1000500A_clearStatus(void)
+{
+    for(uint8_t i = 0; i < STATUS_BITS; i++)
+        id1000500A_aip->clearINT(i);
+
+    return 0;
 }
