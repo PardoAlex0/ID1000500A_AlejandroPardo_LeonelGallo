@@ -16,6 +16,9 @@ class convolution:
         if self.__pyaip is None:
             logging.debug(error)
            
+        ## Array of strings with information read
+        self.dataRX = []
+        
         ## IP Convolution IP-ID
         self.IPID = 0
         
@@ -23,7 +26,7 @@ class convolution:
         
         self.__clearStatus()
         
-        logging.debug(f"IP Driver created with IP ID {self.IPID:08x}")
+        logging.debug(f"IP Convolution controller created with IP ID {self.IPID:08x}")
         
     ## Write data in the IP Convolution input memory
     #
@@ -114,7 +117,6 @@ class convolution:
     # @param self Object pointer
     def __getID(self):
         self.IPID = self.__pyaip.getID()
-        logging.info(f"IP ID: {self.IPID:08X}")
         
     ## Clear status register of IP
     #
@@ -144,7 +146,7 @@ class convolution:
     
     
 if __name__=="__main__":
-    import sys
+    import sys, time, os
     
     logging.basicConfig(level=logging.INFO)
     connector = '/dev/ttyACM0'
@@ -152,25 +154,23 @@ if __name__=="__main__":
     addr = 1
     port = 0
     
-    X = [0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000003, 0x00000007, 0x00000006, 0x0000000A, 0x00000005, 0x00000008]
-    
-    Y = [0x00000003, 0x00000003, 0x00000005, 0x00000006, 0x00000007]
-    
     try:
-        driver = convolution(connector, addr, port, csv_file)
+        driver = convolution(conector, addr, port, csv_file)
         logging.info("Test Convolution: Driver created")
-        
-        driver.status()
     except:
         logging.error("Test Convolution: Driver not created")
-        sys.exit()
 
-        
-    driver.disableINT()
+    ID = driver.getID()
+    logging.info(f'Read ID: {ID:08X}\n')
     
+    STATUS = driver.getStatus()
+    logging.info(f'Read STATUS: {STATUS:08X}\n')
+    
+    X = [0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000003, 0x00000007, 0x00000006, 0x0000000A, 0x00000005, 0x00000008]
     driver.writeData('MdataX', X)
     logging.info(f'TX MemX Data: {[f"{x:08X}" for x in X]}')
     
+    Y = [0x00000003, 0x00000003, 0x00000005, 0x00000006, 0x00000007]
     driver.writeData('MdataY', Y)
     logging.info(f'TX MemY Data: {[f"{x:08X}" for x in Y]}')
     
